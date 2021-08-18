@@ -1,0 +1,39 @@
+import { Movie } from './entities/movie.entity';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { addMovieDto } from './dto/add-movie.dto';
+
+@Injectable()
+export class MoviesService {
+  private movies: Movie[] = [];
+
+  getAll(): Movie[] {
+    return this.movies;
+  }
+
+  getOne(id: number): Movie {
+    const movie = this.movies.find(movie => movie.id === id);
+    if (!movie) {
+      throw new NotFoundException(`Movie with ID: ${id} not found`);
+    }
+    return movie;
+  }
+
+  deleteOne(id: number) {
+    this.getOne(id);
+    this.movies = this.movies.filter(movie => movie.id !== id);
+    return true;
+  }
+
+  addOne(movieData: addMovieDto) {
+    this.movies.push({
+      id: this.movies.length + 1,
+      ...movieData,
+    });
+  }
+
+  update(id: number, updateData) {
+    const movie = this.getOne(id);
+    this.deleteOne(id);
+    this.movies.push({...movie, ...updateData});
+  }
+}
